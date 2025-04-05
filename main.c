@@ -4,15 +4,20 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#define ROW 12
-#define COL 11
+#define ROW 'K'
+#define COL 20
+#define MAXFILM 7
+#define MAXCINEMA 7
+#define MAXDATE 4
+#define MAXTIME 6
+#define MAXSEAT 200
 typedef struct {
     char nameFilm[50], genre[50], age[5], duration[15];
     float rate;
 }film;
 
 typedef struct ticket{ // linkedlist for queue
-    char fullname[50], id[5], movieTitle[100], mall[100], cinema[100], time[100], date[100], seat[3];
+    char fullname[50], id[5], movieTitle[100], mall[100], cinema[100], time[100], date[100], seat[50];
     int paymentStatus, isRefund;
     struct ticket *next;
 }ticket;
@@ -28,6 +33,27 @@ typedef struct {
 typedef struct {
     char time[20];
 }time;
+
+char *onlyStr(char *temp){
+    int flag = 0;
+    do{
+        for(int i = 0; i < strlen(temp); i++){
+            if(isdigit(temp[i]) == 0){
+                flag = 1;
+            }else{
+                flag = 0;
+                break;
+            }
+        }
+        if(flag == 0){
+            printf("Input must string! Please try again!!\nChoose your option: ");
+            scanf(" %[^\n]", temp);
+        }else{
+            break;
+        }
+    } while(flag == 0);
+    return temp;
+}
 int strtoint(char *temp){ //purpose function ini, untuk ngubah string to int, biar gaada sensitive case;
     while(true){
         int flag = 0;
@@ -51,57 +77,117 @@ int strtoint(char *temp){ //purpose function ini, untuk ngubah string to int, bi
     return atoi(temp);
 }
 
-// void seat(int *filmArr, int *cinemaArr, int *dateArr, int *timeArr){
-//     int taken = 0, ij = 0;
-//     char seat[12][18][4][6][12][11][5]; // bro are u fr?
-//     printf("\nSeat status:\n\"X\" = TAKEN\n\"O\" = AVAILABLE\"\n");
-//     for(int i = 'A'; i <= 'L'; i++){ // ---> for(int i = 'A'; i <= 'A'; i++)
-//                                      // ---> for(int j = 0; j <= 0; j++)
-//         char iChar[10];              // ---> taken = 1 , if (taken == 1){"booked" || cTaken = 'X'}
-//         snprintf(iChar, sizeof(iChar), "%c", i);
-//         for(int k = 0; k <= 10; k++){
-//             printf("|========");   
-//         }
-//         printf("=|\n");
-//         for(int j = 0; j <= 10; j++){
-//             char cTaken, jChar[10];
-//             snprintf(jChar, sizeof(jChar), "%d", j);
-//             if(taken == 0){
-//                 cTaken = 'O';
-//                 printf("| %c%d \"%c\" ", i, j, cTaken);
-//             }else if(taken == 1){
-//                 cTaken = 'X';
-//                 printf("| %c%d \"%c\" ", i, j, cTaken);
-//             }
-//             strcpy(seat[*filmArr][*cinemaArr][*dateArr][*timeArr][ij][j], "");
-//             strcat(seat[ij][j], iChar);
-//             strcat(seat[ij][j], jChar);
-//         }
-//         ij++;
-//         printf("|\n");
-//     }
-//     for(int k = 0; k <= 10; k++){
-//         printf("|========");   
-//     }
-//     printf("=|\n");
-//     printf("|                                                                                                   |\n");
-//     printf("|                                                                                                   |\n");
-//     printf("|                                                                                                   |\n");
-//     printf("|                                                                                                   |\n");
-//     printf("|===============================|               SCREEN               |==============================|\n"); 
-//     for(int i = 0; i< 12; i++){
-//         for (int j = 0; j <11; j++){
-//             printf("%s ", seat[i][j]);
-//         }
-//         printf("\n");
-//     }
-//     getch();
-// }
+void availableSeat(int *rowArr, int *colArr, char seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL], int *filmArr, int *cinemaArr, int *dateArr, int *timeArr){
+    int tempFilmArr = *filmArr, tempCinemaArr = *cinemaArr, tempDateArr = *dateArr, tempTimeArr = *timeArr, tempRowArr = *rowArr, tempColArr = *colArr;
+    // printf("%d %d %d %d %d %d", tempFilmArr, tempCinemaArr, tempDateArr, tempTimeArr, *rowArr, *colArr);
+    int capacity = 0;
+    for (int i = 'A'; i < ROW; i++){
+        for (int j = 0; j < COL; j++){
+            if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j] == 'O'){
+                capacity++;
+            }
+        }
+    }
+    
+    printf("|===================================================================================|\n");
+    printf("| AVAILABLE : \"O\"%68c\n", '|');
+    printf("| BOOKED    : \"X\"%68c\n|%84c\n", '|', '|');
+    printf("| CAPACITY  : %d/%-66d|\n", capacity, MAXSEAT);
+    for(int j = 0; j < COL+1; j++){
+        printf("|===");
+    }
+    printf("|\n");
+    printf("|   ");
+    for(int j = 0; j < COL+1; j++){
+        if(j > 0){
+            printf("| %-2d", j-1);
+        }
+    }
+    printf("|\n");
+    for(int j = 0; j < COL+1; j++){
+        printf("|===");
+    }
+    printf("|\n");
+    for(int i = 'A'; i < ROW; i++){
+        printf("| %c ", i);
+        for(int j = 0; j < COL; j++){
+          
+            printf("| %c ", seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j]);
+        }
+        printf("|\n");
+        for(int i = 0; i < COL+1; i++){
+            printf("|===");
+        }
+        printf("|\n");
+    }                                                                                           
+    printf("|                                                                                   |\n");
+    printf("|                                                                                   |\n");
+    printf("|                                                                                   |\n");
+    printf("|=========================|             SCREEN             |========================|\n");
+    printf("\nPress any key to continue.\n");
+    getch();
+}
 
-void buyTicket(ticket **node, ticket **head, ticket **tail, film *filmData, cinema *cinemaData, date *dateData, time *timeData, int *maxFilm,int *maxCinema, int *maxDate, int *maxTime, char *userFilm, char *userMall, char *userCinema, char *userDate, char *userTime, char *temp, int *filmArr, int *cinemaArr, int *dateArr, int *timeArr){
-    char yn;
+void bookSeat(int *rowArr, int *colArr, char seat[MAXCINEMA][MAXFILM][MAXDATE][MAXTIME][ROW][COL], int *filmArr, int *cinemaArr, int *dateArr, int *timeArr, char *temp, int *bookFlag, int *seatCount, char *seatCountString){
+    int tempFilmArr = *filmArr, tempCinemaArr = *cinemaArr, tempDateArr = *dateArr, tempTimeArr = *timeArr, tempRowArr, tempColArr;
+    while (true){
+        while(true){
+            printf("Which row would you like to book to enjoy the movie? (A - %c)\nChoose your option: ", ROW - 1);
+            scanf(" %[^\n]", temp);
+            onlyStr(temp);
+            if(strlen(onlyStr(temp)) == 1){
+                if(onlyStr(temp)[0] >= 'A' && onlyStr(temp)[0] < ROW){
+                    break;
+                }else{
+                    printf("\nPlease input between (A - %c)\nPress any key to continue\n\n", ROW - 1);
+                    getch();
+                }
+            }else{
+                printf("\nPlease input between (A - %c)\nPress any key to continue\n\n", ROW - 1);
+                getch();
+            }
+        }
+        // printf("ROW user: %c",onlyStr(temp)[0]); getch();
+        *rowArr = onlyStr(temp)[0];
+        do{
+            printf("\nWhich col would you like to book to enjoy the movie? (0 - %d)\nChoose your option: ", COL - 1);
+            scanf(" %[^\n]", temp);
+            strtoint(temp);
+            if(strtoint(temp) < 0 || strtoint(temp) >= COL){
+                printf("\nPlease input between (0 - %d)\nPress any key to continue\n", COL - 1);
+                getch();
+            }
+        }while(strtoint(temp) < 0 || strtoint(temp) >= COL);
+        // printf("COL USER : %d", strtoint(temp));
+        *colArr = strtoint(temp);
+        tempRowArr = *rowArr; 
+        tempColArr = *colArr;
+        if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][tempRowArr][tempColArr] == 'X'){
+            printf("\nOops! This seat's taken. Pick a different one.\nPress any key to continue\n");
+            getch();
+        }else{
+            seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][tempRowArr][tempColArr] = 'X';
+            // printf(" seat count = %d", *seatCount); getch();
+            if(*seatCount == 0){
+                snprintf(seatCountString, sizeof(seatCountString), "%c%d", tempRowArr, tempColArr);
+            }else{
+                char str[10];
+                snprintf(str, sizeof(str), "%c%d", tempRowArr, tempColArr);
+                strcat(seatCountString, ", ");
+                strcat(seatCountString, str);
+            }
+            break;
+        }
+    }
+    (*seatCount)++;
+    printf("\nBooking complete.\nPress any key to continue\n");
+    getch();
+    *bookFlag = 1;
+}
+void buyTicket(ticket **node, ticket **head, ticket **tail, film *filmData, cinema *cinemaData, date *dateData, time *timeData, int *maxFilm,int *maxCinema, int *maxDate, int *maxTime, char *userFilm, char *userMall, char *userCinema, char *userDate, char *userTime, char *temp, int *filmArr, int *cinemaArr, int *dateArr, int *timeArr, int *rowArr, int *colArr, int *seatFlag, char seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL]){
+    char yn, seatCountString[50];
     do{
-        
+        int seatCount = 0;
         *node = (ticket *) malloc (sizeof(ticket));
         
         int flagFilm = 0, flagMall = 0, flagCinema = 0;
@@ -206,21 +292,58 @@ void buyTicket(ticket **node, ticket **head, ticket **tail, film *filmData, cine
         
         *timeArr = strtoint(temp)-1;    
         // seat(filmArr, cinemaArr, dateArr, timeArr);
+        int bookFlag = 0;
         do{
             printf("|==================================|\n");
             printf("|               SEAT               |\n");
             printf("|===|==============================|\n");
-            printf("| 1 | VIEW AVAILABlE SEAT          |\n");
+            printf("| 1 | VIEW AVAILABLE SEAT          |\n");
             printf("| 2 | BOOK SEAT                    |\n");
+            printf("| 3 | SEAT CONFIRMATION            |\n");
             printf("|===|==============================|\n\n");
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
             strtoint(temp);
-            if (strtoint(temp) < 1 || strtoint(temp) > 2){
+            if (strtoint(temp) < 1 || strtoint(temp) > 3){
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
             }
-        }while(strtoint(temp) < 1 || strtoint(temp) > 2);
+            switch(strtoint(temp)){
+                case 1: {
+                    availableSeat(rowArr, colArr, seat, filmArr, cinemaArr, dateArr, timeArr);
+                }
+                break;
+                case 2: {
+                    bookSeat(rowArr, colArr, seat, filmArr, cinemaArr, dateArr, timeArr, temp, &bookFlag, &seatCount, seatCountString);
+                    *seatFlag = 1;
+                }
+                break;
+                case 3: {
+                    if(bookFlag == 0){
+                        printf("Confirmation is only available after the booking has been made.\nPress any key to continue\n");
+                        getch();
+                    }else if(bookFlag == 1){
+                        char yn;
+                        printf("\n|=======================================|\n");
+                        printf("|           SEAT CONFIRMATION           |\n");
+                        printf("|=======================================|\n");
+                        printf("Your seat reservation : %s", seatCountString);
+                        
+                        printf("\nPlease confirm your seat selection. Is everything correct? (Y/n): ");
+                        scanf(" %c", &yn);
+                        yn = tolower(yn);
+                        if(yn == 'y'){
+                            printf("\nYour seat has been successfully reserved. Thank you for your booking!\nPress any key to continue\n");
+                            getch();
+                            bookFlag = 2;
+                            strcpy((*node)->seat, seatCountString);
+                        }
+                    }
+                }
+                break;
+            }
+        }while(bookFlag == 0 || bookFlag == 1);
+        
         if (*head == NULL){
             *head = *node;
             (*node)->next = NULL; 
@@ -229,17 +352,18 @@ void buyTicket(ticket **node, ticket **head, ticket **tail, film *filmData, cine
             (*node)->next = NULL; 
         }   
         *tail = *node;
-        // printf("HASIL LINKEDLIST\n\n");                  //printing nodes
-        // *node = *head;
-        // while((*node) != NULL){
-        //     printf("user film: %s\n", (*node)->movieTitle);
-        //     printf("user mall: %s\n", (*node)->mall);
-        //     printf("user cinema: %s\n", (*node)->cinema);
-        //     printf("user date: %s\n", (*node)->date);
-        //     printf("user time: %s\n\n", (*node)->time);
-        //     *node = (*node)->next;
-        // }
-        
+        printf("\nHASIL LINKEDLIST\n\n");                  //printing nodes
+        *node = *head;
+        while((*node) != NULL){
+            printf("user film: %s\n", (*node)->movieTitle);
+            printf("user mall: %s\n", (*node)->mall);
+            printf("user cinema: %s\n", (*node)->cinema);
+            printf("user date: %s\n", (*node)->date);
+            printf("user time: %s\n", (*node)->time);
+            printf("user seat: %s\n\n", (*node)->seat);
+            *node = (*node)->next;
+        }
+        getch();
         printf("\nwant again? (Y/n): ");
         scanf(" %c", &yn);
         yn = tolower(yn);
@@ -254,8 +378,8 @@ void buyTicket(ticket **node, ticket **head, ticket **tail, film *filmData, cine
 
 }
 
-void nowShowing(char *temp, ticket **node, ticket **head, ticket **tail){
-    int i = 0, maxFilm, choose = 0, ticketCount = 0, iCinema = 0, maxCinema, maxDate, maxTime, cinemaArr, filmArr, dateArr, timeArr;
+void nowShowing(char *temp, ticket **node, ticket **head, ticket **tail, int *seatFlag, int *ticketCount, char seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL]){
+    int i = 0, maxFilm, choose = 0, iCinema = 0, maxCinema, maxDate, maxTime, cinemaArr, filmArr, dateArr, timeArr, rowArr, colArr;
     char userFilm[50], userMall[50], userCinema[50], userDate[50], userTime[30]; 
     film filmData[12]; 
     cinema cinemaData[18];
@@ -317,8 +441,8 @@ void nowShowing(char *temp, ticket **node, ticket **head, ticket **tail){
         choose = strtoint(temp);
         switch(choose){
             case 1: {
-                buyTicket(node, head, tail, filmData, cinemaData, dateData, timeData, &maxFilm, &maxCinema, &maxDate, &maxTime, userFilm, userMall, userCinema, userDate, userTime, temp, &filmArr, &cinemaArr, &dateArr, &timeArr);
-                ticketCount++;
+                buyTicket(node, head, tail, filmData, cinemaData, dateData, timeData, &maxFilm, &maxCinema, &maxDate, &maxTime, userFilm, userMall, userCinema, userDate, userTime, temp, &filmArr, &cinemaArr, &dateArr, &timeArr, &rowArr, &colArr, seatFlag, seat);
+                *ticketCount++;
             }
             break;
             case 2: {
@@ -334,10 +458,22 @@ void nowShowing(char *temp, ticket **node, ticket **head, ticket **tail){
 }   
 
 void mainMenu(){
-    ticket *node, *tail, *head;
-    head = NULL;
-    char temp[100];
-    int choose;
+    ticket *node, *tail, *head = NULL;
+    char temp[100], seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL];
+    for (int a = 0; a < MAXFILM; a++){
+        for (int b = 0; b < MAXCINEMA; b++){
+            for(int c = 0; c < MAXDATE; c++){
+                for(int d = 0; d < MAXTIME; d++){
+                    for(int e = 0; e < ROW; e++){
+                        for(int f = 0; f < COL; f++){
+                            seat[a][b][c][d][e][f] = 'O';
+                        }
+                    }
+                }
+            }
+        }
+    }
+    int choose, seatFlag = 0, ticketCount = 0;
     do{
         printf("\nWelcome, \"fullname\"\n");
         printf("Logged in as \"username\"\n");
@@ -365,7 +501,7 @@ void mainMenu(){
         choose = strtoint(temp);
         switch (choose){
             case 1:{
-                nowShowing(temp, &node, &head, &tail);
+                nowShowing(temp, &node, &head, &tail, &seatFlag, &ticketCount, seat);
             }
             break;
             case 2:{

@@ -1,18 +1,7 @@
-Senayan City#The Premiere#PRE-ID
 Senayan City#XXI#XXI-ID
-Senayan City#21#TWE-ID
 Plaza Senayan#XXI#XXI-ID 
 Central Park#CGV#CGV-ID
 Mall Taman Anggrek#XXI#XXI-ID
-Bintaro Jaya Xchange Mall#XXI#XXI-ID          
-Bintaro Jaya Xchange Mall#The Premiere#PRE-ID
 Bintaro Jaya Xchange Mall#IMAX#MAX-ID
-Summarecon Mall Serpong#XXI#XXI-ID
-Summarecon Mall Serpong#The Premiere#PRE-ID
-Supermall Lippo Karawaci#XXI#XXI-ID
-Supermall Lippo Karawaci#The Premiere#PRE-ID
 Supermall Lippo Karawaci#21#TWE-ID
 Supermall Lippo Karawaci#IMAX#MAX-ID
-Puri Indah Mall#XXI#XXI-ID
-Puri Indah Mall#The Premiere#PRE-ID
-Foodmosphere Karawaci#CGV#CGV-ID
