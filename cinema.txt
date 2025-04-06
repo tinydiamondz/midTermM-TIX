@@ -1,7 +1,7 @@
-Senayan City#XXI#XXI-ID
-Plaza Senayan#XXI#XXI-ID 
-Central Park#CGV#CGV-ID
-Mall Taman Anggrek#XXI#XXI-ID
-Bintaro Jaya Xchange Mall#IMAX#MAX-ID
-Supermall Lippo Karawaci#21#TWE-ID
-Supermall Lippo Karawaci#IMAX#MAX-ID
+Senayan City#The Premiere#120000#PRE-ID
+Plaza Senayan#XXI#65000#XXI-ID
+Central Park#CGV#50000#CGV-ID
+Mall Taman Anggrek#XXI#65000#XXI-ID
+Bintaro Jaya Xchange Mall#IMAX#90000#MAX-ID
+Supermall Lippo Karawaci#21#60000#TWE-ID
+Supermall Lippo Karawaci#IMAX#90000#MAX-ID
