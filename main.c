@@ -1,19 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <ctype.h>
-#include <time.h>
-#define ROW 'K'
-#define COL 21
-#define MAXFILM 7
-#define MAXCINEMA 7
-#define MAXDATE 4
-#define MAXTIME 6
-#define MAXSEAT 200
-#define MAXFEEDBACK 15
-typedef struct {
+#include <stdio.h> // standard input output, biasa buat C
+#include <stdlib.h> // standrad library //
+#include <conio.h> // kami memakai getchar(), getch(), dll. 
+#include <string.h> //string header, kami memakai strcmp(), strcpy, snprintf(), strcat(), dll
+#include <stdbool.h> // standard boolean, buat true or false
+#include <ctype.h> //untuk tolower(), toupper() / lowercase, uppercase
+#include <time.h> // untuk angka random, kita ambil rand();
+#define ROW 'K' // MAX ROW SEAT sampai J
+#define COL 21  // MAX COL SEAT sampai 20
+#define MAXFILM 7 // MAX FILM sampai 6
+#define MAXCINEMA 7 // MAX CINEMA sampai 6
+#define MAXDATE 4 // MAX DATE sampai 4
+#define MAXTIME 6 // MAX TIME sampai 6
+#define MAXSEAT 200 // MAX SEAT dalam 1 CINEMA
+#define MAXFEEDBACK 15 // FEEDBACK MAX 15 USER
+
+typedef struct {    // struct buat film
     char nameFilm[50], genre[50], age[5], duration[15];
     float rate;
 }film;
@@ -24,39 +25,56 @@ typedef struct ticket{ // linkedlist for queue
     struct ticket *next;
 }ticket;
 
-typedef struct {
+typedef struct {    // struct buat cinema
     char nameMall[40], nameCinema[20], id[10];
     int price;
 }cinema;
 
-typedef struct {
+typedef struct {    // struct buat date
     char date[30], id[30];
 }date;
 
-typedef struct {
+typedef struct {    //// struct buat time
     char time[20], id[20];
 }times;
 
-typedef struct {
+typedef struct {    // struct buat comming soon
     char nameFilm[50], genre[50], age[5], duration[15];
     float rate;
 }soon;
 
-typedef struct {
+typedef struct {    // struct buat watchlist
     char nameFilm[50], genre[50], age[5], duration[15];
     float rate;
 }watchLists;
 
-typedef struct history{
+typedef struct history{ // struct buat history ticket
     char film[50], cinema[50], mall[50], id[50], date[40], time[40], fullname[100], seat[50];
     int price;
     struct history *next; 
 }history;
 
-typedef struct {
+typedef struct {    // struct buat user feedback
     char fullname[100], comment[55];
     float rate;
 }feedback;
+
+int is_valid_float(const char *str) {
+    char *endptr;
+
+    float val = strtof(str, &endptr);
+
+    // Cek kalau string kosong atau tidak ada angka yang terbaca
+    if (str == endptr) return 0;
+
+    // Lewatin whitespace setelah angka
+    while (*endptr != '\0') {
+        if (!isspace(*endptr)) return 0;
+        endptr++;
+    }
+
+    return 1;
+}
 
 char *onlyStr(char *temp){
     int flag = 0;
@@ -83,9 +101,9 @@ int strtoint(char *temp){ //purpose function ini, untuk ngubah string to int, bi
     while(true){
         int flag = 0;
         
-        for(int i = 0; i < strlen(temp); i++){
-            if(isdigit(temp[i]) == 0){
-                printf("\nInput must integers! Please try again.\n\n");
+        for(int i = 0; i < strlen(temp); i++){  // kita jadikan i sebagai index, 
+            if(isdigit(temp[i]) == 0){          // kita cek 1 per 1 apakah temp !isdigit ? 
+                printf("\nInput must integers! Please try again.\n\n"); // jika char, maka input harus integer 
                 
                 flag = 0;
                 printf("Choose your option: ");
@@ -99,7 +117,7 @@ int strtoint(char *temp){ //purpose function ini, untuk ngubah string to int, bi
             break;
         }
     }
-    return atoi(temp);
+    return atoi(temp);  // pake syntax atoi
 }
 
 void availableSeat(ticket **node, ticket **head, ticket **tail, int *rowArr, int *colArr, char seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL], int *filmArr, int *cinemaArr, int *dateArr, int *timeArr){
@@ -108,20 +126,20 @@ void availableSeat(ticket **node, ticket **head, ticket **tail, int *rowArr, int
     int capacity = 0;
     for (int i = 'A'; i < ROW; i++){
         for (int j = 1; j < COL; j++){
-            if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j] == ' '){
+            if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j] == ' '){ // jika kursi kosong, maka kursi available
                 capacity++;
             }
         }
     }
     
     printf("|===================================================================================|\n");
-    printf("| FILM           : %-65s|\n", (*node)->movieTitle);
-    printf("| CINEMA         : %-65s|\n", (*node)->cinema);
-    printf("| MALL           : %-65s|\n", (*node)->mall);
-    printf("| DATE           : %-65s|\n", (*node)->date);
-    printf("| TIME           : %-65s|\n|%84c\n", (*node)->time, '|');
+    printf("| FILM           : %-65s|\n", (*node)->movieTitle);         // show filmTitle
+    printf("| CINEMA         : %-65s|\n", (*node)->cinema);             // show cinema 
+    printf("| MALL           : %-65s|\n", (*node)->mall);               // show mall
+    printf("| DATE           : %-65s|\n", (*node)->date);               // show date
+    printf("| TIME           : %-65s|\n|%84c\n", (*node)->time, '|');   // show time
     printf("| BOOKED         : \"X\"%63c\n", '|');
-    printf("| AVAILABLE SEAT : %d / %-59d|\n", capacity, MAXSEAT);
+    printf("| AVAILABLE SEAT : %d / %-59d|\n", capacity, MAXSEAT);      // show available seat
     for(int j = 1; j < COL+1; j++){
         printf("|===");
     }
@@ -141,7 +159,7 @@ void availableSeat(ticket **node, ticket **head, ticket **tail, int *rowArr, int
         printf("| %c ", i);
         for(int j = 1; j < COL; j++){
           
-            printf("| %c ", seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j]);
+            printf("| %c ", seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][i][j]); // print user's seat
         }
         printf("|\n");
         for(int i = 1; i < COL+1; i++){
@@ -161,8 +179,8 @@ void bookSeat(int *rowArr, int *colArr, char seat[MAXCINEMA][MAXFILM][MAXDATE][M
     int tempFilmArr = *filmArr, tempCinemaArr = *cinemaArr, tempDateArr = *dateArr, tempTimeArr = *timeArr, tempRowArr, tempColArr;
     while (true){
         while(true){
-            printf("Which row would you like to book to enjoy the movie? (A - %c)\nChoose your option: ", ROW - 1);
-            scanf(" %[^\n]", temp);
+            printf("Which row would you like to book to enjoy the movie? (A - %c)\nChoose your option: ", ROW - 1); 
+            scanf(" %[^\n]", temp);                 // USER HANYA BISA MEMSAN ROW SEAT dari A - J
             onlyStr(temp);
             if(strlen(onlyStr(temp)) == 1){
                 if(onlyStr(temp)[0] >= 'A' && onlyStr(temp)[0] < ROW){
@@ -180,7 +198,7 @@ void bookSeat(int *rowArr, int *colArr, char seat[MAXCINEMA][MAXFILM][MAXDATE][M
         *rowArr = onlyStr(temp)[0];
         do{
             printf("\nWhich col would you like to book to enjoy the movie? (1 - %d)\nChoose your option: ", COL - 1);
-            scanf(" %[^\n]", temp);
+            scanf(" %[^\n]", temp);                 // USER HANYA BISA MEMESAN COL SEAT dari 1 - 20
             strtoint(temp);
             if(strtoint(temp) < 1 || strtoint(temp) >= COL){
                 printf("\nPlease input between (1 - %d)\nPress any key to continue\n", COL - 1);
@@ -190,8 +208,8 @@ void bookSeat(int *rowArr, int *colArr, char seat[MAXCINEMA][MAXFILM][MAXDATE][M
         // printf("COL USER : %d", strtoint(temp));
         *colArr = strtoint(temp);
         tempRowArr = *rowArr; 
-        tempColArr = *colArr;
-        if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][tempRowArr][tempColArr] == 'X'){
+        tempColArr = *colArr;           // jika kursi != 'X' THEN kursi = 'X'
+        if(seat[tempFilmArr][tempCinemaArr][tempDateArr][tempTimeArr][tempRowArr][tempColArr] == 'X'){ 
             printf("\nOops! This seat's taken. Pick a different one.\nPress any key to continue\n");
             getch();
         }else{
@@ -220,17 +238,17 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
     do{
         int tempPrice = 0;
         int seatCount = 0;
-        *node = (ticket *) malloc (sizeof(ticket));
+        *node = (ticket *) malloc (sizeof(ticket)); // membuat node baru --> untuk tiket
         
         int flagFilm = 0, flagMall = 0, flagCinema = 0;
         int counter = 0;
-        do{
+        do{ // disini, looping ini bakal nge print 
             printf("|===================================================================================|\n");
             printf("|                                    NOW SHOWING                                    |\n");
             printf("|====|==============================|================|===============|======|=======|\n");
             printf("| NO.|             NAME             |    DURATION    |     GENRE     | RATE |  AGE  |\n");
             printf("|====|==============================|================|===============|======|=======|\n");
-            for(int i = 0; i < *maxFilm; i++){
+            for(int i = 0; i < *maxFilm; i++){  // batasnya maxfilm
                 counter++;
                 printf("| %-3d| %-29s| %-15s| %-14s| %-5.1f| %-6s|\n", counter, filmData[i].nameFilm, filmData[i].duration, filmData[i].genre, filmData[i].rate, filmData[i].age);
             }
@@ -242,7 +260,7 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("What do you want to watch? Pick your film by selecting those numbers!");
             printf("\nChoose your option: ");
             scanf(" %[^\n]", temp);
-            strtoint(temp); //kita jadiin function ini jadi array ye kan?
+            strtoint(temp); // only int can goin thru
             if (strtoint(temp) < 1 || strtoint(temp) > 12 ){
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
@@ -253,11 +271,11 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
         strcpy((*node)->movieTitle, userFilm);
         *filmArr = strtoint(temp)-1;
         do{
-            int counter = 0;
-            printf("|====|===============================|==================|=============|\n"); //cinema[]
+            int counter = 0;        
+            printf("|====|===============================|==================|=============|\n");
             printf("| NO |              MALL             |      CINEMA      |    PRICE    |\n");
             printf("|====|===============================|==================|=============|\n");
-            for(int i = 0; i < *maxCinema; i++){
+            for(int i = 0; i < *maxCinema; i++){    // print struct cinema
                 counter++;
                 printf("| %-3d| %-30s| %-16s | Rp %-9d|\n", counter, cinemaData[i].nameMall, cinemaData[i].nameCinema, cinemaData[i].price);
             }
@@ -266,7 +284,7 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
             strtoint(temp);
-            if(strtoint(temp) < 1 || strtoint(temp) > 18){
+            if(strtoint(temp) < 1 || strtoint(temp) > 18){          // user hanya milih 1 - 18
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
             }
@@ -285,7 +303,7 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("| NO |      AVAILABLE DATE      |\n");
             printf("|====|==========================|\n");
             counter = 1;
-            for(int i = 0; i < *maxDate; i++){
+            for(int i = 0; i < *maxDate; i++){      // print struct date
                 printf("| %-3d| %-25s|\n", counter, dateData[i].date);
                 counter++;
             }    
@@ -294,13 +312,13 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
             strtoint(temp);
-            if(strtoint(temp) < 1 || strtoint(temp) > 4){
+            if(strtoint(temp) < 1 || strtoint(temp) > 4){       // option hanya bisa 1 - 4
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
             }
         }while(strtoint(temp) < 1 || strtoint(temp) > 4);
         strcpy(userDate, dateData[strtoint(temp)-1].date);
-        strcpy((*node)->date, userDate);
+        strcpy((*node)->date, userDate); // masukin user date ke node->date 
         dateID = (strtoint(temp)-1);
         *dateArr = strtoint(temp)-1;
         do{
@@ -308,7 +326,7 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("|         TIME         |\n");
             printf("|===|==================|\n");
             counter = 1;
-            for(int i = 0; i < *maxTime; i++){
+            for(int i = 0; i < *maxTime; i++){      // print struct time
                 printf("| %-2d| %-17s|\n", counter, timeData[i].time);
                 counter++;
             }
@@ -316,19 +334,16 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
             printf("Choose the best time to enjoy your movie\nChoose your option: ");
             scanf(" %[^\n]", temp);
             strtoint(temp);
-            if(strtoint(temp) < 1 || strtoint(temp) > 6){
+            if(strtoint(temp) < 1 || strtoint(temp) > 6){   // option 1 - 6
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
             }
         }while(strtoint(temp) < 1 || strtoint(temp) > 6);
         strcpy(userTime, timeData[strtoint(temp)-1].time);
-        strcpy((*node)->time, userTime);
+        strcpy((*node)->time, userTime);    // masukin usertime ke node->time
         timeID = (strtoint(temp)-1);
-        // printf("UserTime: %s", userTime);
-        
         *timeArr = strtoint(temp)-1;    
-        // seat(filmArr, cinemaArr, dateArr, timeArr);
-        int bookFlag = 0;
+        int bookFlag = 0;   // kita buat flag, biar user bisa booking seat lebih dari 1
         do{
             printf("|==================================|\n");
             printf("|               SEAT               |\n");
@@ -345,11 +360,11 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
                 getch();
             }
             switch(strtoint(temp)){
-                case 1: {
-                    availableSeat(node, head, tail, rowArr, colArr, seat, filmArr, cinemaArr, dateArr, timeArr);
+                case 1: {   // function availableSeat(), tujuan : memperlihatkan seat kosong
+                    availableSeat(node, head, tail, rowArr, colArr, seat, filmArr, cinemaArr, dateArr, timeArr);    
                 }
                 break;
-                case 2: {
+                case 2: {   // function bookSeat(), tujuan : untuk user booking seat
                     bookSeat(rowArr, colArr, seat, filmArr, cinemaArr, dateArr, timeArr, temp, &bookFlag, &seatCount, seatCountString);
                     *seatFlag = 1;
                 }
@@ -358,7 +373,7 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
                     if(bookFlag == 0){
                         printf("Confirmation is only available after the booking has been made.\nPress any key to continue\n");
                         getch();
-                    }else if(bookFlag == 1){
+                    }else if(bookFlag == 1){ // jika user sudah booking atau bookFlag == 1, maka dapat melihat seat confirmation
                         char yn;
                         printf("\n|=================================================================|\n");
                         printf("|                        SEAT CONFIRMATION                        |\n");
@@ -380,20 +395,20 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
                 }
                 break;
             }
-            
-            ((*node)->price) = tempPrice * seatCount;
-            strcpy((*node)->id, dateData[dateID].id); 
+            ((*node)->price) = tempPrice * seatCount; //total price = harga * seat
+            // PEMBUATAN TICKET ID
+            strcpy((*node)->id, dateData[dateID].id); // masukan dateID ke node->id
             strcat((*node)->id, "-");
-            strcat((*node)->id, cinemaData[cinemaID].id);
+            strcat((*node)->id, cinemaData[cinemaID].id); // masukan cinemaID ke node->id
             strcat((*node)->id, "-");
-            strcat((*node)->id, timeData[timeID].id);
+            strcat((*node)->id, timeData[timeID].id);   // masukin timeID ke node->id
             strcat((*node)->id, "-");
-            strcat((*node)->id, filmData[filmID].age);
-            strcpy((*node)->fullname, realName);
+            strcat((*node)->id, filmData[filmID].age);  //masukin filmID ke node->id
+            strcpy((*node)->fullname, realName);        // masukin fullname user ke node->fuillname
         }while(bookFlag == 0 || bookFlag == 1);
         
-        if (*head == NULL){
-            *head = *node;
+        if (*head == NULL){     // kita buat linkedlist ini menjadi QUEUE
+            *head = *node;      // kita menggunakan queue untuk alur jalan tiket kita
             (*node)->next = NULL; 
         }else{
             (*tail)->next = *node;
@@ -423,19 +438,19 @@ void buyTicket(char *realName, ticket **node, ticket **head, ticket **tail, film
 void nowShowing(char *realName, char *temp, film *filmData, ticket **node, ticket **head, ticket **tail, int *seatFlag, int *ticketCount, char seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL]){
     int i = 0, maxFilm, choose = 0, iCinema = 0, maxCinema, maxDate, maxTime, cinemaArr, filmArr, dateArr, timeArr, rowArr, colArr;
     char userFilm[50], userMall[50], userCinema[50], userDate[50], userTime[30]; 
-    cinema cinemaData[MAXCINEMA];
-    date dateData[MAXDATE];
-    times timeData[MAXTIME];   
-    while(choose != 2){
-        FILE *openFilm = fopen("./nowShowing.txt", "r");
+    cinema cinemaData[MAXCINEMA];   // struct buat cinema
+    date dateData[MAXDATE];         // struct buat date
+    times timeData[MAXTIME];        // struct buat time
+    while(choose != 2){             // jika choose == 2, maka break; atau kembali ke mainMenu()
+        FILE *openFilm = fopen("./nowShowing.txt", "r");        // file open "nowShowing.txt"
         while(!feof(openFilm)){ //#s#d#s#.1f#%s
             fscanf(openFilm," %[^#]#%[^#]#%[^#]#%f#%[^\n]", filmData[i].nameFilm, filmData[i].duration, filmData[i].genre, &filmData[i].rate, filmData[i].age);
             i++;
-            maxFilm = i;
+            maxFilm = i;               
         }
-        fclose(openFilm);
+        fclose(openFilm);                  
         i = 0;
-        FILE *openCinema = fopen("./cinema.txt", "r");
+        FILE *openCinema = fopen("./cinema.txt", "r");          // file open "cinema.txt"
         while(!feof(openCinema)){
             fscanf(openCinema, " %[^#]#%[^#]#%d#%[^\n]", cinemaData[i].nameMall, cinemaData[i].nameCinema, &cinemaData[i].price, cinemaData[i].id);
             i++;
@@ -443,7 +458,7 @@ void nowShowing(char *realName, char *temp, film *filmData, ticket **node, ticke
         }
         fclose(openCinema);
         i = 0;
-        FILE *openDate = fopen("./date.txt", "r");
+        FILE *openDate = fopen("./date.txt", "r");              // file open "date.txt"
         while(!feof(openDate)){
             fscanf(openDate, " %[^#]#%[^\n]", dateData[i].date, dateData[i].id);
             i++;
@@ -451,24 +466,22 @@ void nowShowing(char *realName, char *temp, film *filmData, ticket **node, ticke
         }
         fclose(openDate);
         i = 0;
-        FILE *openTime = fopen("./time.txt", "r");
+        FILE *openTime = fopen("./time.txt", "r");              // file open time.txt
         while(!feof(openTime)){
             fscanf(openTime, " %[^#]#%[^\n]", timeData[i].time, timeData[i].id);
             i++;
             maxTime = i;
         }
         i = 0;
-        // for(int iaja = 0; iaja < maxDate; iaja++){
-        //     printf("%s\n",timeData[iaja].time);
-        // }
+       
         int counter = 0;
         printf("|===================================================================================|\n");
         printf("|                                    NOW SHOWING                                    |\n");
         printf("|====|==============================|================|===============|======|=======|\n");
         printf("| NO.|             NAME             |    DURATION    |     GENRE     | RATE |  AGE  |\n");
         printf("|====|==============================|================|===============|======|=======|\n");
-        for(int i = 0; i < MAXFILM; i++){
-            counter++;
+        for(int i = 0; i < MAXFILM; i++){           // print semua film yang sedang tayang
+            counter++;                                      
             printf("| %-3d| %-29s| %-15s| %-14s| %-5.1f| %-6s|\n", counter, filmData[i].nameFilm, filmData[i].duration, filmData[i].genre, filmData[i].rate, filmData[i].age);
         }
         if(counter != 0){
@@ -484,7 +497,7 @@ void nowShowing(char *realName, char *temp, film *filmData, ticket **node, ticke
         do{
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
-            strtoint(temp);
+            strtoint(temp);         // only int yang boleh masuk
             // printf("\nmaxFilm %d", maxFilm);
             
             if(strtoint(temp) < 1 || strtoint(temp) > 3){
@@ -508,16 +521,16 @@ void nowShowing(char *realName, char *temp, film *filmData, ticket **node, ticke
     }
 }   
     
-void comingSoon(){
-        soon soonData[MAXFILM];
-        FILE *openSoon = fopen("./comingSoon.txt","r");
-        int i = 0;
-        while(!feof(openSoon)){
-            fscanf(openSoon, " %[^#]#%[^#]#%[^#]#%f#%[^\n]", &soonData[i].nameFilm, &soonData[i].duration, &soonData[i].genre, &soonData[i].rate, &soonData[i].age);
-            i++;
-        }
-        fclose(openSoon);
-        int counter = 0;
+void comingSoon(){ 
+    soon soonData[MAXFILM];
+    FILE *openSoon = fopen("./comingSoon.txt","r");
+    int i = 0;
+    while(!feof(openSoon)){
+        fscanf(openSoon, " %[^#]#%[^#]#%[^#]#%f#%[^\n]", &soonData[i].nameFilm, &soonData[i].duration, &soonData[i].genre, &soonData[i].rate, &soonData[i].age);
+        i++;
+    }
+    fclose(openSoon);
+    int counter = 0;
     printf("|===================================================================================|\n");
     printf("|                                    COMING SOON                                    |\n");
     printf("|====|==============================|================|===============|======|=======|\n");
@@ -552,11 +565,11 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
     *node = *head;
     int paymentSuccess;
     while(true){
-        paymentSuccess = 0;
+        paymentSuccess = 0; // print tiket yang akan dibeli
         printf("|====================================================|\n");
         printf("|                 TICKET CONFIRMATION                |\n");
         printf("|===|================================================|\n");       
-        printf("| 1 | TICKET ID   : %-33s|\n", (*node)->id);
+        printf("| 1 | TICKET ID   : %-33s|\n", (*node)->id);                
         printf("| 2 | YOUR NAME   : %-33s|\n", (*node)->fullname);
         printf("| 3 | FILM        : %-33s|\n", (*node)->movieTitle);
         printf("| 4 | MALL        : %-33s|\n", (*node)->mall);
@@ -584,11 +597,11 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
             strtoint(temp);
-            if(strtoint(temp) > 2 || strtoint(temp) < 1){
+            if(strtoint(temp) > 3 || strtoint(temp) < 1){
                 printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
                 getch();
             }
-        }while(strtoint(temp) > 2 || strtoint(temp) < 1);
+        }while(strtoint(temp) > 3 || strtoint(temp) < 1);
         int choose = strtoint(temp);
         if(choose == 3){
             break;
@@ -596,9 +609,9 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
         switch (choose){
             case 1: {
                 while(true){
-                    srand(time(NULL));
+                    srand(time(NULL));  // set time NULL, biar angka keluar random
                     char userInput[100];
-                    char format[100] = "710000010";
+                    char format[100] = "710000010"; // menggunakan rand() dari library time.h
                     unsigned int randNum = ((rand() % 9999 + 1000) % (rand() % 9999 + 1000) % (rand() % 9999 + 1000) % (rand() % 9999 + 1000)) + 1000;
                     char randStr[10];
                     snprintf (randStr, sizeof(randStr), "%u", randNum);
@@ -615,8 +628,9 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                         printf("\nIncorrect virtual account number. Please make sure to enter the correct number.\nPress any key to continue\n\n");
                         getch();
                     }else{
-                        int otpFlag = 4;
+                        int otpFlag = 4;    // membuat remaining attemps 3
                         while (true){
+                            srand(time(NULL));      // menggunakan rand() dari library time.h
                             randNum = ((rand() % 999999 + 100000) % (rand() % 999999 + 100000) % (rand() % 999999 + 100000) % (rand() % 999999 + 100000)) + 100000;
                             printf("\nYour OTP is %u\n", randNum);
                             strcpy(randStr, "");
@@ -625,7 +639,7 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                             scanf(" %[^\n]", userInput);
                             getchar();
                             if(strcmp(userInput, randStr) != 0){
-                                otpFlag --;
+                                otpFlag --;     // jika salah maka attemps bakal berkurang
                                 if(otpFlag == 0){
                                     printf("\nYou have exceeded the maximum number of attempts. Please restart the payment process.\nPress any key to continue");
                                     paymentSuccess = 0;
@@ -637,7 +651,7 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                             }else{
                                 printf("\nYour ticket was successfully purchased!\n\nPress any key to continue\n\n");
                                 getch();
-                                paymentSuccess = 1;
+                                paymentSuccess = 1; // set paymentSuccess yang mana dia Flag, paymentSuccess =1
                                 break;
                             }
                         }
@@ -647,7 +661,7 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
             }
             break;
             case 2: {
-                while (true){
+                while (true){   // case 2, payment on-site brati paymetn dilakukan di cinema
                     printf("|=======================================================|\n");
                     printf("|                  PAYMENT VIA ON-SITE                  |\n");
                     printf("|===|===================================================|\n");
@@ -665,8 +679,8 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                     if(yn == 'y'){
                         int otpFlag = 4;
                         while(true){
-                            
-                            char userInput[100];
+                            srand(time(NULL));
+                            char userInput[100];        // kita buat Verificationnya dengan angka random
                             unsigned int randNum = ((rand() % 999999) + 100000 % (rand() % 999999) + 100000 % (rand() % 999999) + 100000 % (rand() % 999999) + 100000 % (rand() % 999999) + 100000) + 100000;
                             char randStr[10];
                             strcpy(randStr, (*node)->idCinema);
@@ -677,7 +691,7 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                             scanf(" %[^\n]", userInput);
                             getchar();
                             if(strcmp(userInput, randStr) != 0){
-                                otpFlag--;
+                                otpFlag--;  // attemps berkurang jika salah
                                 if(otpFlag == 0){
                                     printf("\nYou have exceeded the maximum number of attempts. Please restart the payment process.\nPress any key to continue");
                                     getch();
@@ -691,7 +705,7 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
                             }else{
                                 printf("\nYour ticket was successfully purchased!\n\nPress any key to continue\n\n");
                                 getch();
-                                paymentSuccess = 1;
+                                paymentSuccess = 1; // jika payment berhasil, paymentSuccess = 1
                                 break;
                             }
                         }
@@ -704,25 +718,25 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
             }
             break;
         }
-        
-        if(paymentSuccess == 1){
+
+        if(paymentSuccess == 1){    // jika payment berhasil, maka looping pembayaran akan di break
             break;
         }
     }
     if(paymentSuccess == 1){
-        *hNode = (history *) malloc(sizeof(history));
-        (*totalHistory)++;
-        strcpy((*hNode)->id, (*node)->id);
-        strcpy((*hNode)->fullname, (*node)->fullname);
-        strcpy((*hNode)->film, (*node)->movieTitle);
+        *hNode = (history *) malloc(sizeof(history));   // buat node baru untuk history pembayaran 
+        (*totalHistory)++;                              // history flag akan bertambah, jika tiket sudah dibayar
+        strcpy((*hNode)->id, (*node)->id);              // masukan semua data di tiket
+        strcpy((*hNode)->fullname, (*node)->fullname);  // kedalam linked list history
+        strcpy((*hNode)->film, (*node)->movieTitle);    // kami membuat history ini menggunakan linkedlist, karena akan bertambah secara dynamic
         strcpy((*hNode)->cinema, (*node)->cinema);
         strcpy((*hNode)->mall, (*node)->mall);
         strcpy((*hNode)->date, (*node)->date);
         strcpy((*hNode)->time, (*node)->time);
         strcpy((*hNode)->seat, (*node)->seat);
-        (*hNode)->price = (*node)->price;
+        (*hNode)->price = (*node)->price;   
 
-        if(*hHead == NULL){
+        if(*hHead == NULL){             // proses pembuatan linked list untuk history pembayaran
             *hHead = *hNode;
             (*hNode)->next = NULL;
         }else{
@@ -731,8 +745,8 @@ void pay(char *temp, ticket **node, ticket **head, ticket **tail, history **hNod
         }
         (*hTail) = *hNode;
     
-        (*node) = *head;
-        *head = (*head)->next;
+        (*node) = *head;            // jangan lupa untuk delete ticket dari queue list   
+        *head = (*head)->next;      // karena sudah dibayar
         free(*node);
         *node = *head;
     }
@@ -753,9 +767,9 @@ void myTicket(char *realName, char *temp, ticket **node, ticket **head, ticket *
         }else{
             printf("|===|================================================|\n");       
         }
-        while((*node) != NULL){
-            counter++;
-            printf("| %-2d| TICKET ID : %-35s|\n",counter , ((*node)->id));
+        while((*node) != NULL){     // looping ini akan ngerpint semua tiket yang sudah di order
+            counter++;              // loping hingga node == NULL
+            printf("| %-2d| TICKET ID : %-35s|\n",counter , ((*node)->id)); 
             printf("|   | YOUR NAME   : %-33s|\n", (*node)->fullname);
             printf("|   | FILM        : %-33s|\n", (*node)->movieTitle);
             printf("|   | MALL        : %-33s|\n", (*node)->mall);
@@ -765,7 +779,7 @@ void myTicket(char *realName, char *temp, ticket **node, ticket **head, ticket *
             printf("|   | SEAT        : %-33s|\n", (*node)->seat);
             printf("|   | TOTAL PRICE : Rp %-30d|\n", (*node)->price);
             printf("|===|================================================|\n");       
-            (*node) = (*node)->next;
+            (*node) = (*node)->next;    // jangan lupa di node = node->next
         }
         printf("\n\n*Tickets that have already been booked cannot be modified. \nIf you'd like to make any changes, please delete the ticket and book a new one.");
         do{
@@ -787,13 +801,13 @@ void myTicket(char *realName, char *temp, ticket **node, ticket **head, ticket *
         choose = strtoint(temp);
         switch(choose){
             case 1: {
-                deleteTicket(node, head, tail);
+                deleteTicket(node, head, tail); // masuk ke function deleteTicket()
             }
             break;
             case 2: {
-                *node = *head;
+                *node = *head;  // atur dulu node = head;
                 if(*node != NULL){ 
-                    pay(temp, node, head, tail, hNode, hHead, hTail, totalHistory);
+                    pay(temp, node, head, tail, hNode, hHead, hTail, totalHistory); // masuk ke function pembayaran, pay()
                 }else{
                     printf("\nYou don't have any ticket to pay!\nPress any key to continue\n\n");
                     getch();
@@ -806,13 +820,13 @@ void myTicket(char *realName, char *temp, ticket **node, ticket **head, ticket *
 
 void ticketHistory(history **hNode, history **hHead, history **hTail, int *totalHistory){
     *hNode = *hHead;
-    FILE *openHistory = fopen("./historyFilm.txt","w");
-    while((*hNode) != NULL){
+    FILE *openHistory = fopen("./historyFilm.txt","w"); // kita menggunakan file processing dengan access mode write
+    while((*hNode) != NULL){                            // untuk menginput data kedalam "historyFilm.txt"
         fprintf(openHistory, "%s#%s#%s#%s#%s#%s#%s#%s#%d\n", (*hNode)->id, (*hNode)->fullname, (*hNode)->film, (*hNode)->mall, (*hNode)->cinema, (*hNode)->date, (*hNode)->time, (*hNode)->seat, (*hNode)->price);
         (*hNode) = (*hNode)->next;
     }
     fclose(openHistory);
-    (*hNode) = (*hHead);
+    (*hNode) = (*hHead);    // set node = head; --> punya history
     printf("|==============================================================|\n");
     printf("| NO |                TICKET PURCHASED HISTORY                 |\n");
     printf("|====|=========================================================|\n");
@@ -831,26 +845,26 @@ void ticketHistory(history **hNode, history **hHead, history **hTail, int *total
         printf("|====|=========================================================|\n");
         (*hNode) = (*hNode)->next;
     }
-    (*hNode) = (*hHead);
+    (*hNode) = (*hHead);    // set lagi head = node
     printf("Press any key to continue\n");
     getch();
 }
 
 void mainMenu(char *realName, char *userReg){
-    film filmData[MAXFILM]; 
-    ticket *node, *tail, *head = NULL;
-    history *hNode, *hTail, *hHead = NULL;
+    film filmData[MAXFILM];                 // struct film 
+    ticket *node, *tail, *head = NULL;      // struct ticket --> berbentuk linkedlist (queue)
+    history *hNode, *hTail, *hHead = NULL;  // struct history --> berbentuk linkedlist
     feedback userFeed[MAXFEEDBACK];
-    int totalHistory = 0;
-    int maxFeedback;
-    char temp[100], seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL];
-    for (int a = 0; a < MAXFILM; a++){
+    int totalHistory = 0;       //ticket history 
+    int maxFeedback;            // max comment user
+    char temp[100], seat[MAXFILM][MAXCINEMA][MAXDATE][MAXTIME][ROW][COL]; // char seat, make array 6 Dimensi, 
+    for (int a = 0; a < MAXFILM; a++){                                    // karena per cinema, film, tanggal, waktu harus berbeda2
         for (int b = 0; b < MAXCINEMA; b++){
             for(int c = 0; c < MAXDATE; c++){
                 for(int d = 0; d < MAXTIME; d++){
                     for(int e = 0; e < ROW; e++){
                         for(int f = 0; f < COL; f++){
-                            seat[a][b][c][d][e][f] = ' ';
+                            seat[a][b][c][d][e][f] = ' ';               // set semua char ke available semua;
                         }
                     }
                 }
@@ -872,33 +886,33 @@ void mainMenu(char *realName, char *userReg){
         printf("| 3 | MY TICKETS                         |\n");
         printf("| 4 | TICKET HISTORY                     |\n");
         printf("| 5 | RATE YOUR EXPERIENCE WITH M-TIX    |\n");
-        printf("| 6 | EXIT                               |\n");
+        printf("| 6 | LOG OUT                            |\n");
         printf("|===|====================================|\n");
         do{
             printf("Choose your option: ");
             scanf(" %[^\n]", temp);
             getchar();            // strtoint(temp);
-            if(strtoint(temp) < 1 || strtoint(temp) > 6){
-                printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");
+            if(strtoint(temp) < 1 || strtoint(temp) > 6){   // strtoint adalah fungsi ngubah agar input user harus int
+                printf("\nPlease choose numbers from the list!\nPress any key to continue\n\n");    // dan di set pilihannya 1 - 6 aja
                 getch();
             }
         }while(strtoint(temp) < 1 || strtoint(temp) > 6);
         choose = strtoint(temp);
-        switch (choose){
-            case 1:{
+        switch (choose){    
+            case 1:{              // case 1: menuju ke nowShowing(); film yang ditanyangkan di bioskop
                 nowShowing(realName, temp, filmData, &node, &head, &tail, &seatFlag, &ticketCount, seat);
             }
             break;
             case 2:{
-               comingSoon(temp);
+               comingSoon(temp);  // case 2: menuju ke comingsoon(); film yang akan di tayangkan
             }
             break;      
-            case 3:{
+            case 3:{                // case 3: lihat tiket kita yang udah di order.
                 myTicket(realName, temp, &node, &head, &tail, &hNode, &hHead, &hTail, &ticketCount, &totalHistory);
             }
             break;  
-            case 4: {
-                if(totalHistory == 0){
+            case 4: {               // melihat history pembelian tiket
+                if(totalHistory == 0){  // jika tiket blm pernah di beli,  maka gabisa masuk ke ticketHistory()
                     printf("\nYour ticket history is currently empty.\nPress any key to continue\n\n");
                     getch();
                 }else{
@@ -906,73 +920,84 @@ void mainMenu(char *realName, char *userReg){
                 }
             }
             break;
-            case 5: {
+            case 5: {           // case 5, feedback user kepada developer
                 char rateStr[10];
                 char comment[100];
                 float rateFloat;
+                char input[100];
+                float number;
+                FILE *openFeedback = fopen("./feedback.txt", "a+"); // menggunakan file processing dengan access mode "append +" /append+read
                 
-                FILE *openFeedback = fopen("./feedback.txt", "a+");
-                while(true){
-                    int i = 0;
-                    while(!feof(openFeedback)){
-                        fscanf(openFeedback, "%[^#]#%f#%[^\n]\n", userFeed[i].fullname, &userFeed[i].rate, userFeed[i].comment);
-                        i++;
-                        maxFeedback = i;
-                    }
+                int i = 0;
+                while(!feof(openFeedback)){ //looping hingga eof, ambil data dari "feedback.txt"
+                    fscanf(openFeedback, "%[^#]#%f#%[^\n]\n", userFeed[i].fullname, &userFeed[i].rate, userFeed[i].comment);
+                    i++;
+                    maxFeedback = i;    // kita butuh maxfeedback agar kita bisa lakukan perloopingan dengan index i = 0; i < maxFeedback; i++
+                }
+                while (true){
                     int counter = 0;
                     printf("\n|===================================================================|\n");
                     printf("|                        SHARE YOUR FEEDBACK                        |\n");
                     printf("|====|==============================================================|\n");
-                    for(int i = 0; i < maxFeedback; i++){
-                        counter++;
+                    for(int i = 0; i < maxFeedback; i++){   // looping hingga i < maxFeedback; i++
+                        counter++;                          // display data dari feedback.txt 
                         printf("| %-2d | NAME       : %-48s|\n", counter, userFeed[i].fullname);     
                         printf("|    | RATE       : %-48.1f|\n", userFeed[i].rate);        
                         printf("|    | FEEDBACK   : %49s\n", "|");        
                         printf("|    | %-61s|\n", userFeed[i].comment);        
                         printf("|====|==============================================================|\n");
                     }
-                    printf("Rate your experience using this app!\n\n");
-                    printf("Rate: ");
-                    scanf(" %f", &rateFloat);
                     
-                    if(rateFloat > 5 || rateFloat < 1){
-                        printf("\nPlease input rate from (1 - 5)\n\n");
-                        getch();
-                    }else{
-                        break;
+                    
+                    printf("Rate your experience (1 - 5) ");    
+                    scanf(" %[^\n]", input);  // Ambil input satu baris tanpa newline
+                    
+                    if (is_valid_float(input)) { // function is_valid_float, agar input user harus valid/float, gabisa input asal
+                        rateFloat = strtof(input, NULL); //onlyfloat
+                        if(rateFloat > 5 || rateFloat < 1){ // input must 1 to 5 (float)
+                        
+                            printf("\nPlease input rate from (1 - 5)\n\n");
+                            getch();
+                        }else{
+                            break;
+                        }
+                    } else {
+                        printf("Input tidak valid! Coba lagi.\n");
                     }
+                    
                 }
-                while(true){
+            
+                while(true){    
                     printf("\nWe'd love to hear your thoughts! How was your experience using M-Tix? (Max 50 Characters)\n");
                     printf("\nComments: ");
-                    scanf(" %[^\n]", comment);
-                    getchar();
-                    if(strlen(comment) > 50){
+                    scanf(" %[^\n]", comment);  // user berhak berkomentar kpd developer tentang experience menggunakan M-Tix
+                    getchar();        //bersihin buffer dari enter
+                    if(strlen(comment) > 50){       // jika characters more than 50, maka dia loop   
                         printf("\nOops! Please keep your feedback under 50 characters.\nPress any key to continue\n\n");
-                        getch();
-                    }else if(strlen(comment) == 0){
+                        getch();   
+                    }else if(strlen(comment) == 0){ // jika character kosong, dia juga loop
                         printf("\nPlease help us to improve our application by sharing your experience :)\nPress any key to continue\n\n");
                         getch();
-                    }else{
+                    }else{  
                         printf("\nThanks for your feedback, we will improve our app as soon as possible.\n\n");
                         getch();
-                        break;
+                        break;  // jika user commet done, break loopnya
                     }
                 }
-                fprintf(openFeedback, "%s#%f#%s\n", realName, rateFloat, comment);
-                fclose(openFeedback);
+                fprintf(openFeedback, "%s#%f#%s\n", realName, rateFloat, comment); // masukiin user fullname, rating, comments 
+                fclose(openFeedback);                                              // kedalam "feedback.txt"
             }
             break;
         }
-        if (choose == 6) {
+        if (choose == 6) {  // LOG OUT
             printf("You have successfully logged out. See you next time!\n");
-            node = head;
+            node = head;            // CLEAR ALL TICKET QUEUE NODES
             while(head!= NULL){
                 head = head->next;
                 free(node);
                 node = head;
             }
-            hNode = hHead;
+            hNode = hHead;          // CLEAR ALL TICKET HISTORY MODES
             node = NULL;
             head = NULL;
             tail = NULL;
@@ -994,18 +1019,18 @@ void accInfo(char *realName, char *regUser, char *passUser, char *email, char *p
     printf("\n|===================================================|\n");
     printf("|                ACCOUNT INFORMATION                |\n");
     printf("|===|===============================================|\n");
-    printf("| 1.| Full name    : %-31s|\n", realName);
-    printf("| 2.| E-mail       : %-31s|\n", email);
-    printf("| 3.| Phone number : %-31s|\n", phone);
-    printf("| 4.| Username     : %-31s|\n", regUser);
-    if(*flagReg == 0 ||*flagReg == 1  ){
-        for(int i = 0; i < strlen(passUser); i++){
-            strcat(passEncrypt, "*");
+    printf("| 1.| Full name    : %-31s|\n", realName);  //fullname 
+    printf("| 2.| E-mail       : %-31s|\n", email);     //email
+    printf("| 3.| Phone number : %-31s|\n", phone);     //no telp
+    printf("| 4.| Username     : %-31s|\n", regUser);   //username
+    if(*flagReg == 0 ||*flagReg == 1  ){        
+        for(int i = 0; i < strlen(passUser); i++){ ////srlen(passEncrypt) harus sama dengan strlen(userPass)
+            strcat(passEncrypt, "*");                   //password encrypt
         }
     }
     if(*flagLog == 1){
-        for(int i = 0; i < strlen(passUser); i++){
-            strcat(passEncrypt, "*");
+        for(int i = 0; i < strlen(passUser); i++){  ////srlen(passEncrypt) harus sama dengan strlen(userPass)
+            strcat(passEncrypt, "*");                   //password encrypt
         }
     }
     printf("| 5.| Password     : %-31s|\n", passEncrypt);
@@ -1022,17 +1047,17 @@ void regAcc(char *realName, char *first,char *last,char *regUser,char *passUser,
         printf("|    REGISTER ACCOUNT    |\n");
         printf("|========================|\n\n");
         printf("Your first name : ");
-        scanf(" %[^\n]", first);
+        scanf(" %[^\n]", first);            // untuk firstname kita masukin ke string first;
         printf("Your last name  : ");
-        scanf(" %[^\n]", last);
+        scanf(" %[^\n]", last);             // untuk lastname kita masukin ke string last;
         while(true){
             printf("Your e-mail     : ");
-            scanf(" %[^\n]", email);
+            scanf(" %[^\n]", email);            // email user
             length = strlen(email);
             if((strncmp(&email[length - 4], ".com", 4) == 0) || (strncmp(&email[length - 6], ".co.id", 6) == 0) || (strncmp(&email[length - 6], ".ac.id", 6) == 0)){
-                break;
+                break;  // disini kami menggunakan (.com, co.id, ac.id), agar user gak ngasal2 an inputya 
             }else{
-                printf("\nInvalid e-mail\n");
+                printf("\nInvalid e-mail\n");               //diberikan example juga
                 printf("Example : email@gmail.com\n");
                 printf("          email@student.umn.ac.id\n");
                 printf("          email@yahoo.co.id\n");
@@ -1046,7 +1071,7 @@ void regAcc(char *realName, char *first,char *last,char *regUser,char *passUser,
             printf("Phone number    : ");
             scanf(" %[^\n]", phone);
             for(int i = 0; i < strlen(phone); i++){
-                if(!isdigit(phone[i]) == 1){
+                if(!isdigit(phone[i]) == 1){            // jika phone[i] tidak integer, maka akan looping --> menggunakan isdigit()
                     printf("\nPhone number must be an integer. Please try again.\nPress any key to continue");
                     j = 0;
                     getch();
@@ -1061,22 +1086,22 @@ void regAcc(char *realName, char *first,char *last,char *regUser,char *passUser,
             }
         }
         printf("Username        : ");
-        scanf(" %[^\n]", regUser);
+        scanf(" %[^\n]", regUser);      // username user
         printf("Password        : ");
-        scanf(" %[^\n]", passUser);
+        scanf(" %[^\n]", passUser);     // pass user
         
-        strcpy(realName, first);
-        strcat(realName, " ");
-        strcat(realName, last);
+        strcpy(realName, first);    // kita menggabungkan firstname
+        strcat(realName, " ");      // dan last name
+        strcat(realName, last);     // kedalam string realName
         
         accInfo(realName, regUser, passUser, email, phone, passEncrypt, flag, flag2); //call function accInfo()
         
         printf("\n");
-        printf("\nIs your identity correct? (Y/n): ");
+        printf("\nIs your identity correct? (Y/n): ");  // cek akun
         scanf(" %c", &yn);
         yn = tolower(yn);
         if(yn == 'y'){
-            break;
+            break;  // jika betul keluar dari loop
         }else{
             // strcpy(passEncrypt, "");
         }
@@ -1085,7 +1110,7 @@ void regAcc(char *realName, char *first,char *last,char *regUser,char *passUser,
     
     printf("\nREGISTER SUCCESSFULLY\nPress any key to continue\n");
     getch();
-    *flag = 1;
+    *flag = 1;  // flagReg = 1; 
 }
 
 void logAcc(char *realName, char *regUser, char *passUser, char *email, char *phone, char *passEncrypt, int *flagReg, int *flagLog){
@@ -1105,7 +1130,7 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
         scanf(" %d", &choose);
         
         switch(choose){
-            case 1: {
+            case 1: {       //jika choose == 1, user akan login by username 
                 int flag = 0;
                 char yn;
                 do{
@@ -1116,9 +1141,9 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                     scanf(" %[^\n]", regUser2);
                     printf("Password    : ");
                     scanf(" %[^\n]", passUser2);
-                    if(strcmp(regUser2, regUser) == 0 && strcmp(passUser2, passUser) == 0){
-                        mainMenu(realName, regUser);
-                        flag = 1;
+                    if(strcmp(regUser2, regUser) == 0 && strcmp(passUser2, passUser) == 0){  //username dan password yang di input.
+                        mainMenu(realName, regUser);                                         //harus sama dengan username dan password yang dibuat
+                        flag = 1;                                                            // di accReg();
                     }else{
                         printf("\nUsername or password doesn't matches.\nPlease try again\n");
                         printf("\nForget your password (Y/n): ");
@@ -1139,18 +1164,18 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                                 }else{
                                     printf("\nPassword has been changed,\nPress any key to continue.");
                                     getch();
-                                    flag = 1;
+                                    flag = 1;       // flagLog = 1;
                                 }
                             }while(flag == 0);
-                            if (flag == 1){
-                                break;
+                            if (flag == 1){ 
+                                break;      
                             }
                         }
                     }
                 } while(flag == 0);
             }
             break;
-            case 2: {
+            case 2: {       //jika choose == 2, user akan login by email
                 int flag = 0;
                 char yn;
                 do{
@@ -1161,9 +1186,9 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                     scanf(" %[^\n]", email2);
                     printf("Password    : ");
                     scanf(" %[^\n]", passUser2);
-                    if(strcmp(email, email2) == 0 && strcmp(passUser2, passUser) == 0){
-                        mainMenu(realName, regUser);
-                        flag = 1;
+                    if(strcmp(email, email2) == 0 && strcmp(passUser2, passUser) == 0){     //email dan password yang di input.
+                        mainMenu(realName, regUser);                                        //harus sama dengan email dan password yang dibuat
+                        flag = 1;                                                           //di accReg();
                     }else{
                         printf("\nE-mail or password doesn't matches.\nPlease try again\n");
                         printf("\nForget your password (Y/n): ");
@@ -1184,7 +1209,7 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                                 }else{
                                     printf("\nPassword has been changed,\nPress any key to continue.");
                                     getch();
-                                    flag = 1;
+                                    flag = 1;   // flagLog = 1
                                 }
                             }while(flag == 0);
                             if (flag == 1){
@@ -1195,7 +1220,7 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                 } while(flag == 0);
             }
             break;
-            case 3:{
+            case 3:{        //jika choose == 3, maka user akan login by phone number
                 int flag = 0;
                 char yn;
                 do{
@@ -1206,9 +1231,9 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                     scanf(" %[^\n]", phone2);
                     printf("Password        : ");
                     scanf(" %[^\n]", passUser2);
-                    if(strcmp(phone2, phone) == 0 && strcmp(passUser2, passUser) == 0){
-                        mainMenu(realName, regUser);
-                        flag = 1;
+                    if(strcmp(phone2, phone) == 0 && strcmp(passUser2, passUser) == 0){     //email dan password yang di input.
+                        mainMenu(realName, regUser);                                        //harus sama dengan email dan password yang dibuat
+                        flag = 1;                                                           //di regAcc()
                     }else{
                         printf("\nPhone or password doesn't matches.\nPlease try again\n");
                         printf("\nForget your password (Y/n): ");
@@ -1229,7 +1254,7 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                                 }else{
                                     printf("\nPassword has been changed,\nPress any key to continue.");
                                     getch();
-                                    flag = 1;
+                                    flag = 1;   //flagLog = 1;
                                 }
                             }while(flag == 0);
                             if (flag == 1){
@@ -1240,7 +1265,7 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
                 } while(flag == 0);
             }
             break;
-            case 4:{/*freenode*/}
+            case 4:{/*keluar dari loop*/}   
             break;
             default:{
                 printf("Option is not available, Please try again\n");
@@ -1252,9 +1277,9 @@ void logAcc(char *realName, char *regUser, char *passUser, char *email, char *ph
 }
 
 void acc(){
-    int choose, flagReg = 0, flagLog = 0;
-    char realName[100], first[50], last[50], regUser[25], passUser[25], email[50], phone[50], passEncrypt[25] = "", yn;
-    do{
+    int choose, flagReg = 0, flagLog = 0; // flagReg = untuk melihat apakah user sudah membuat acc sebelumnya? ; flagLog = flag jika user sudah login maka flagLog = 1 
+    char realName[100], first[50], last[50], regUser[25], passUser[25], email[50], phone[50], passEncrypt[25] = "", yn; // char yn hanya untuk yes or no (Y/n)
+    do{                                                                                         //passEncrypt : misal passUser = 123, maka passEncrypt = ***
         printf("\n        Welcome to M-Tix");
         printf("\n|==============================|\n");
         printf("|            OPTION            |\n");
@@ -1262,22 +1287,21 @@ void acc(){
         printf("| 1.| ACCOUNT INFORMATION      |\n");
         printf("| 2.| REGISTER ACCOUNT         |\n");
         printf("| 3.| LOGIN ACCOUNT            |\n");
-        printf("| 4.| EXIT                     |\n"); //*free all nodes
+        printf("| 4.| EXIT                     |\n"); 
         printf("|===|==========================|\n");
         printf("Choose your option: ");
-        scanf(" %d", &choose);
+        scanf(" %d", &choose);          //pilihan yang akan dimasukan ke switchcase()
     
         switch(choose){
             case 1: {
-                if(flagReg == 1){
-                    accInfo(realName, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog);
+                if(flagReg == 1){   // jika belum regist acc, maka user gabisa masuk kedalam accInfo();
+                    accInfo(realName, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog); // untuk meilhat informasi akun user
                     printf("Do you want to modify your account data? (Y/n): ");
                     scanf(" %c", &yn);
-                    yn = tolower(yn);
+                    yn = tolower(yn);       //menggunakan tolower yang diambil dari library ctype.h
                     if(yn == 'y'){
-                        // strcpy(passEncrypt, "");
                         flagReg = 0;
-                        regAcc(realName, first, last, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog);
+                        regAcc(realName, first, last, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog); // masuk ke regristrasi acc
                     }
                 }else{
                     printf("\nYou don't have an account.\nYou have to register account first!\n\nPress any key to continue\n");
@@ -1286,17 +1310,17 @@ void acc(){
             }
             break;
             case 2:{
-                if(flagReg == 1){
+                if(flagReg == 1){ //jika User sudah membuat acc, dia gabisa buat acc lagi. Karena acc sudah dia buat.
                     printf("\nYou already have an account.\nYou can login into your account or see you account information.\n\nPress any key to continue");
                     getch();
                 }else{
-                    regAcc(realName, first, last, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog);
+                    regAcc(realName, first, last, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog); //masuk ke Regist acc;
                 }
             }
             break;
             case 3: {
-                if(flagReg == 1){
-                    logAcc(realName, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog);
+                if(flagReg == 1){ // jika user belum registrasi acc, maka user gabisa login. karena apa yg mw dilogin kalo acc blm dibuat 
+                    logAcc(realName, regUser, passUser, email, phone, passEncrypt, &flagReg, &flagLog); //masuk ke login acc;
                 }else{
                     printf("\nYou haven't registered an account yet.\nPlease register an account first.\nPress any key to continue\n\n");
                     getch();
@@ -1304,7 +1328,10 @@ void acc(){
                 //freeNode();
             }
             break;
-            case 4: {}
+            case 4: {
+                printf("\nSee you next time ^^\n\n");
+                getch();
+            }
             break;
             default: {
                 printf("Option is not available, Please try again\n\n");
@@ -1312,12 +1339,10 @@ void acc(){
                 getch();
             }
         }
-    }while(choose != 4);
+    }while(choose != 4); // jika choose == 4, maka akan keluar dari loop
 }
 
 int main(){
-    acc();
-    // mainMenu();
-    // seat();
+    acc(); //untuk account management 
 }
 
